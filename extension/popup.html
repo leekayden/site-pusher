@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      width: 260px;
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      margin: 12px;
+    }
+    h1 { font-size: 15px; margin: 0 0 10px; }
+    .status { margin-bottom: 10px; line-height: 1.5; }
+    .badge { font-weight: 600; }
+    .admin { color: #0a7d28; }
+    .user { color: #555; }
+    input[type="password"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 6px;
+      margin-bottom: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 7px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+    #message { color: #b00020; min-height: 16px; margin-top: 4px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Site Pusher</h1>
+
+  <div id="login-form">
+    <input type="password" id="password" placeholder="Admin password" />
+    <button id="login-btn">Enter admin mode</button>
+  </div>
+
+  <div id="admin-panel" class="hidden">
+    <div class="status">
+      <div>Mode: <span id="mode-badge" class="badge">…</span></div>
+      <div>Relay: <span id="relay-badge" class="badge">…</span></div>
+    </div>
+    <button id="push-btn">Push current tab to all users</button>
+    <button id="logout-btn">Leave admin mode</button>
+  </div>
+
+  <div id="message"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

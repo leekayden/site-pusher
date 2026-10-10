@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Site Pusher",
+  "version": "1.0.0",
+  "description": "Admins can push the current tab to everyone running this extension.",
+  "permissions": ["tabs", "storage"],
+  "host_permissions": [
+    "https://site-pusher.cloudservetechcentral.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Site Pusher"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://example.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

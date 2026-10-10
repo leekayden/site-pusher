@@ -1,0 +1,12 @@
+{
+  "name": "site-pusher-relay",
+  "version": "1.0.0",
+  "description": "Relay server: admins authenticate, broadcast a URL; all connected extensions open it.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
