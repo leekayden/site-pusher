@@ -15,6 +15,21 @@ const TOKEN_TTL_MS = 12 * 60 * 60 * 1000; // 12h, must match TOKEN_TTL_MS in bac
 
 const tokens = new Map(); // token -> expiresAt
 
+// Rate limit login attempts per IP: max 10 per rolling minute.
+const loginAttempts = new Map(); // ip -> [timestamps]
+function loginRateLimited(ip) {
+  const now = Date.now();
+  const recent = (loginAttempts.get(ip) || []).filter((t) => now - t < 60000);
+  recent.push(now);
+  loginAttempts.set(ip, recent);
+  if (loginAttempts.size > 5000) {
+    for (const [key, times] of loginAttempts) {
+      if (times.every((t) => now - t >= 60000)) loginAttempts.delete(key);
+    }
+  }
+  return recent.length > 10;
+}
+
 function issueToken() {
   const token = crypto.randomBytes(32).toString('hex');
   tokens.set(token, Date.now() + TOKEN_TTL_MS);
@@ -39,6 +54,13 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000).unref();
 
+// Behind Apache, every request arrives as 127.0.0.1; prefer the real client IP.
+function clientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) return String(xff).split(',')[0].trim();
+  return req.socket.remoteAddress || 'unknown';
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -51,6 +73,11 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === 'POST' && req.url === '/api/login') {
+    if (loginRateLimited(clientIp(req))) {
+      res.writeHead(429, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'too many attempts, slow down' }));
+      return;
+    }
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
